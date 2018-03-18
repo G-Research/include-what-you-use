@@ -51,7 +51,7 @@ class FixIncludesBase(unittest.TestCase):
     return self.before_map[filename]
 
   def _ParseFileInfo(self, filename):
-      return fix_includes.FileInfo('\n')
+      return fix_includes.FileInfo('\n', 'utf-8')
 
   def _WriteFile(self, filename, fileinfo, contents):
       return self.actual_after_contents.extend(contents)
