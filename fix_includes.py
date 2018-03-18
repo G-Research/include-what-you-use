@@ -528,7 +528,7 @@ class FileInfo(object):
     return FileInfo.DEFAULT_LINESEP
 
 
-def _ReadFile(filename):
+def _ReadFile(filename, fileinfo):
   """Read from filename and return a list of file lines."""
   try:
     return open(filename).read().splitlines()
@@ -537,12 +537,9 @@ def _ReadFile(filename):
   return None
 
 
-def _WriteFile(filename, file_lines):
+def _WriteFile(filename, fileinfo, file_lines):
   """Write the given file-lines to the file."""
   try:
-    # Detect encoding details
-    fileinfo = FileInfo.parse(filename)
-
     # Open file in binary mode to preserve line endings
     with open(filename, 'wb') as f:
       f.write(fileinfo.linesep.join(file_lines))
@@ -2004,7 +2001,9 @@ def FixManyFiles(iwyu_records, flags):
   files_fixed = 0
   for iwyu_record in iwyu_records:
     try:
-      file_contents = _ReadFile(iwyu_record.filename)
+      fileinfo = FileInfo.parse(iwyu_record.filename)
+
+      file_contents = _ReadFile(iwyu_record.filename, fileinfo)
       if not file_contents:
         continue
 
@@ -2017,7 +2016,7 @@ def FixManyFiles(iwyu_records, flags):
       if flags.dry_run:
         PrintFileDiff(old_lines, fixed_lines)
       else:
-        _WriteFile(iwyu_record.filename, fixed_lines)
+        _WriteFile(iwyu_record.filename, fileinfo, fixed_lines)
 
       files_fixed += 1
     except FixIncludesError as why:
